@@ -32,7 +32,7 @@ public class AutoBlue extends OpMode {
     private final Pose pickup3Pose = new Pose(36, 60, Math.toRadians(180));
     private final Pose pickup4Pose = new Pose(15, 60, Math.toRadians(180));
 
-    private PathChain scorePreload, grabPickup1, scorePickup1, grabPickup2, scorePickup2, grabPickup3, scorePickup3;
+
     public void autonomousPathUpdate() {
         switch (pathState) {
             case 0:
@@ -59,7 +59,7 @@ public class AutoBlue extends OpMode {
             case 2:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the pickup1Pose's position */
                 if(!follower.isBusy()) {
-                    /* Grab Sample */
+                    /* Grab Artifact */
 
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are scoring the sample */
                     follower.followPath(scorePickup1,true);
@@ -69,7 +69,7 @@ public class AutoBlue extends OpMode {
             case 3:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
                 if(!follower.isBusy()) {
-                    /* Score Sample */
+                    /* Score Artifact */
 
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are grabbing the sample */
                     follower.followPath(grabPickup2,true);
@@ -79,7 +79,7 @@ public class AutoBlue extends OpMode {
             case 4:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the pickup2Pose's position */
                 if(!follower.isBusy()) {
-                    /* Grab Sample */
+                    /* Grab Artifact */
 
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are scoring the sample */
                     follower.followPath(scorePickup2,true);
@@ -89,7 +89,7 @@ public class AutoBlue extends OpMode {
             case 5:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
                 if(!follower.isBusy()) {
-                    /* Score Sample */
+                    /* Score Artifact */
 
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are grabbing the sample */
                     follower.followPath(grabPickup3,true);
@@ -99,7 +99,7 @@ public class AutoBlue extends OpMode {
             case 6:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the pickup3Pose's position */
                 if(!follower.isBusy()) {
-                    /* Grab Sample */
+                    /* Grab Artifact */
 
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are scoring the sample */
                     follower.followPath(scorePickup3, true);
@@ -121,6 +121,7 @@ public class AutoBlue extends OpMode {
         pathState = pState;
         pathTimer.resetTimer();
     }
+    private PathChain scorePreload, grabPickup1, collectPickup1, scorePickup1, grabPickup2, collectPickup2, scorePickup2, grabPickup3, collectPickup3, scorePickup3;
     public void buildPaths() {
         // Preload scoring path
         scorePreload = follower.pathBuilder()
@@ -128,41 +129,41 @@ public class AutoBlue extends OpMode {
                 .setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading())
                 .build();
 
-        // Grab Pickup 1
+        // Grab & Collect Pickup 1
         grabPickup1 = follower.pathBuilder()
                 .addPath(new BezierLine(scorePose, pickup1Pose))
                 .setLinearHeadingInterpolation(scorePose.getHeading(), pickup1Pose.getHeading())
                 .build();
 
+        collectPickup1 = follower.pathBuilder()
+                .addPath(new BezierLine(pickup1Pose, pickup2Pose))
+                .setLinearHeadingInterpolation(scorePose.getHeading(), pickup1Pose.getHeading())
+                .build();
+
         // Score Pickup 1
         scorePickup1 = follower.pathBuilder()
-                .addPath(new BezierLine(pickup1Pose, scorePose))
+                .addPath(new BezierLine(pickup2Pose, scorePose))
                 .setLinearHeadingInterpolation(pickup1Pose.getHeading(), scorePose.getHeading())
                 .build();
 
-        // Grab Pickup 2
+        // Grab & Collect Pickup 2
         grabPickup2 = follower.pathBuilder()
-                .addPath(new BezierLine(scorePose, pickup2Pose))
+                .addPath(new BezierLine(scorePose, pickup3Pose))
+                .setLinearHeadingInterpolation(scorePose.getHeading(), pickup2Pose.getHeading())
+                .build();
+
+        collectPickup2 = follower.pathBuilder()
+                .addPath(new BezierLine(pickup3Pose, pickup4Pose))
                 .setLinearHeadingInterpolation(scorePose.getHeading(), pickup2Pose.getHeading())
                 .build();
 
         // Score Pickup 2
         scorePickup2 = follower.pathBuilder()
-                .addPath(new BezierLine(pickup2Pose, scorePose))
+                .addPath(new BezierLine(pickup4Pose, scorePose))
                 .setLinearHeadingInterpolation(pickup2Pose.getHeading(), scorePose.getHeading())
                 .build();
 
-        // Grab Pickup 3
-        grabPickup3 = follower.pathBuilder()
-                .addPath(new BezierLine(scorePose, pickup3Pose))
-                .setLinearHeadingInterpolation(scorePose.getHeading(), pickup3Pose.getHeading())
-                .build();
 
-        // Score Pickup 3
-        scorePickup3 = follower.pathBuilder()
-                .addPath(new BezierLine(pickup3Pose, scorePose))
-                .setLinearHeadingInterpolation(pickup3Pose.getHeading(), scorePose.getHeading())
-                .build();
     }
 
     @Override
