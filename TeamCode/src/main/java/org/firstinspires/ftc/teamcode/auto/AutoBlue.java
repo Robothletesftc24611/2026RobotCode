@@ -8,6 +8,7 @@ import com.pedropathing.paths.PathChain;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
@@ -18,6 +19,10 @@ public class AutoBlue extends OpMode {
     public DcMotor rightFrontMotor;
     public DcMotor leftBackMotor;
     public DcMotor leftFrontMotor;
+
+    public DcMotor Intake;
+
+    public CRServo turretServo;;
 
     private Follower follower;
     private Timer pathTimer, actionTimer, opmodeTimer;

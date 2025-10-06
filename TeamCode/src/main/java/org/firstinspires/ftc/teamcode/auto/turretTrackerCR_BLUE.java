@@ -13,11 +13,11 @@ import java.util.List;
 
 
 @TeleOp(name = "Turret Tracker CR", group = "Linear OpMode")
-public class turretTrackerCR extends OpMode {
+public class turretTrackerCR_BLUE extends OpMode {
 
 
     Limelight3A limelight; //limelight camera
-    CRServo turretServo; //servo for the turret
+    public CRServo turretServo; //servo for the turret
 
 
     // Tuning constants
