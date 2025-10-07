@@ -197,7 +197,8 @@ public class AutoBlue extends OpMode {
 
     @Override
     public void loop() {
-        follower.update();
+
+        follower.update(); //real
     }
 }
 
