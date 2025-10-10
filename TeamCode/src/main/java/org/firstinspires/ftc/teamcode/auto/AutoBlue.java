@@ -12,6 +12,7 @@ import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -21,8 +22,8 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 import java.util.List;
 
-@Autonomous(name = "BlueAuto")
-public class AutoBlue extends OpMode {
+@Autonomous(name = "BlueAuto", group = "Linear OpMode")
+public class AutoBlue extends LinearOpMode {
     public DcMotor rightBackMotor;
     public DcMotor rightFrontMotor;
     public DcMotor leftBackMotor;
@@ -113,7 +114,8 @@ public class AutoBlue extends OpMode {
                 if(!follower.isBusy()) {
                     /* Grab Artifact */
                     Intake.setPower(1);
-                    sleep(1500);
+                    sleep(1500); // I hope this doesn;t turn the OS off, cuz that wouldn't be preferable
+
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are scoring the sample */
                     follower.followPath(scorePickup1,true);
                     setPathState(3);
@@ -176,12 +178,13 @@ public class AutoBlue extends OpMode {
     }
 
 
-    @Override
+
     public void init() {
         pathTimer = new Timer();
         actionTimer = new Timer();
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
+
 
         follower = Constants.createFollower(hardwareMap);
         follower.setStartingPose(startPose);
@@ -189,7 +192,7 @@ public class AutoBlue extends OpMode {
         buildPaths();
     }
 
-    @Override
+
     public void start() {
         opmodeTimer.resetTimer();
         follower.followPath(scorePreload);
