@@ -162,7 +162,7 @@ public class mainteleop extends LinearOpMode {
 
             //intake code
             if (gamepad2.a){
-                intake.setPower(-0.3);
+                intake.setPower(-0.15);
             }
             else {
                 intake.setPower(0.0);
