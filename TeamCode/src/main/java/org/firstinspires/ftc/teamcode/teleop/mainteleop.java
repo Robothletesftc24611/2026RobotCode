@@ -31,6 +31,7 @@ package org.firstinspires.ftc.teamcode.teleop;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -74,6 +75,8 @@ public class mainteleop extends LinearOpMode {
 
     private DcMotor intake = null;
 
+    private CRServo spindexer = null;
+
     @Override
     public void runOpMode() {
 
@@ -85,6 +88,7 @@ public class mainteleop extends LinearOpMode {
         backRightDrive = hardwareMap.get(DcMotor.class, "back_right_drive");
 
         intake = hardwareMap.get(DcMotor.class, "intake");
+        spindexer = hardwareMap.get(CRServo.class, "spindexer");
 
         // ########################################################################################
         // !!!            IMPORTANT Drive Information. Test your motor directions.            !!!!!
@@ -162,7 +166,7 @@ public class mainteleop extends LinearOpMode {
 
             //intake code
             if (gamepad2.a){
-                intake.setPower(-0.15);
+                intake.setPower(-0.3);
             }
             else {
                 intake.setPower(0.0);
@@ -173,5 +177,17 @@ public class mainteleop extends LinearOpMode {
             telemetry.addData("Front left/Right", "%4.2f, %4.2f", frontLeftPower, frontRightPower);
             telemetry.addData("Back  left/Right", "%4.2f, %4.2f", backLeftPower, backRightPower);
             telemetry.update();
+
+            if (gamepad2.b){
+
+                spindexer.setPower(0.15);
+                sleep(500);
+
+                spindexer.setPower(0);
+
+            }
+            else {
+                spindexer.setPower(0.0);
+            }
         }
     }}
