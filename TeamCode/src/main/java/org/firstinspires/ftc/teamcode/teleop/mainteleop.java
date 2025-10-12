@@ -171,6 +171,13 @@ public class mainteleop extends LinearOpMode {
             else {
                 intake.setPower(0.0);
             }
+            //spindexer code
+            if(gamepad2.b){
+                spindexer.setPower(0.5);
+            }
+            else{
+                spindexer.setPower(0.0);
+            }
 
             // Show the elapsed game time and wheel power.
             telemetry.addData("Status", "Run Time: " + runtime.toString());
@@ -178,16 +185,6 @@ public class mainteleop extends LinearOpMode {
             telemetry.addData("Back  left/Right", "%4.2f, %4.2f", backLeftPower, backRightPower);
             telemetry.update();
 
-            if (gamepad2.b){
 
-                spindexer.setPower(0.15);
-                sleep(500);
-
-                spindexer.setPower(0);
-
-            }
-            else {
-                spindexer.setPower(0.0);
-            }
         }
     }}
