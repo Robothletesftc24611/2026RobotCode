@@ -74,6 +74,7 @@ public class mainteleop extends LinearOpMode {
     private DcMotor backRightDrive = null;
 
     private DcMotor intake = null;
+    private DcMotor Shooter = null;
 
     private CRServo spindexer = null;
 
@@ -89,6 +90,8 @@ public class mainteleop extends LinearOpMode {
 
         intake = hardwareMap.get(DcMotor.class, "intake");
         spindexer = hardwareMap.get(CRServo.class, "spindexer");
+        Shooter = hardwareMap.get(DcMotor.class, "Shooter");
+
 
         // ########################################################################################
         // !!!            IMPORTANT Drive Information. Test your motor directions.            !!!!!
@@ -166,7 +169,7 @@ public class mainteleop extends LinearOpMode {
 
             //intake code
             if (gamepad2.a){
-                intake.setPower(-0.3);
+                intake.setPower(-0.5);
             }
             else {
                 intake.setPower(0.0);
@@ -177,6 +180,13 @@ public class mainteleop extends LinearOpMode {
             }
             else{
                 spindexer.setPower(0.0);
+            }
+
+            if(gamepad2.x){
+                Shooter.setPower(0.7);
+            }
+            else {
+                Shooter.setPower(0);
             }
 
             // Show the elapsed game time and wheel power.
