@@ -29,7 +29,9 @@
 
 package org.firstinspires.ftc.teamcode.teleop;
 
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -77,6 +79,9 @@ public class mainteleop extends LinearOpMode {
     private DcMotor Shooter = null;
 
     private CRServo spindexer = null;
+    Limelight3A limelight; //limelight camera
+    public CRServo turretServo; //servo for the turret
+
 
     @Override
     public void runOpMode() {
@@ -91,6 +96,7 @@ public class mainteleop extends LinearOpMode {
         intake = hardwareMap.get(DcMotor.class, "intake");
         spindexer = hardwareMap.get(CRServo.class, "spindexer");
         Shooter = hardwareMap.get(DcMotor.class, "Shooter");
+        turretServo = hardwareMap.get(CRServo.class, "turretServo");
 
 
         // ########################################################################################
@@ -183,7 +189,7 @@ public class mainteleop extends LinearOpMode {
             }
 
             if(gamepad2.x){
-                Shooter.setPower(0.7);
+                Shooter.setPower(-1.00);
             }
             else {
                 Shooter.setPower(0);
@@ -197,4 +203,9 @@ public class mainteleop extends LinearOpMode {
 
 
         }
-    }}
+
+
+    }
+
+}
+
