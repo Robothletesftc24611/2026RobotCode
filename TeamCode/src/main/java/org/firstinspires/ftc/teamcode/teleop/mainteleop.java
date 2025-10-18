@@ -79,8 +79,11 @@ public class mainteleop extends LinearOpMode {
     private DcMotor Shooter = null;
 
     private CRServo spindexer = null;
-    Limelight3A limelight; //limelight camera
+    public Limelight3A limelight; //limelight camera
     public CRServo turretServo; //servo for the turret
+    double LIMELIGHT_OFFSET = 0.0;    // Calibrate this once and it stays fixed
+    double DEADZONE = 1.0;            // Ignore small tx values to prevent twitching
+    double MAX_POWER = 0.3;           // Limit max spin speed
 
 
     @Override
@@ -97,6 +100,8 @@ public class mainteleop extends LinearOpMode {
         spindexer = hardwareMap.get(CRServo.class, "spindexer");
         Shooter = hardwareMap.get(DcMotor.class, "Shooter");
         turretServo = hardwareMap.get(CRServo.class, "turretServo");
+
+        limelight = hardwareMap.get(Limelight3A.class, "limelight");
 
 
         // ########################################################################################
@@ -123,6 +128,7 @@ public class mainteleop extends LinearOpMode {
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
+            limelight.start();
             double max;
 
             // POV Mode uses left joystick to go forward & strafe, and right joystick to rotate.
@@ -172,6 +178,10 @@ public class mainteleop extends LinearOpMode {
             frontRightDrive.setPower(frontRightPower);
             backLeftDrive.setPower(backLeftPower);
             backRightDrive.setPower(backRightPower);
+
+            //turret code
+            limelight.pipelineSwitch(1);
+
 
             //intake code
             if (gamepad2.a){
