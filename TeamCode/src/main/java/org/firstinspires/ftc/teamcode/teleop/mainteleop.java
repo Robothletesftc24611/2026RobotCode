@@ -83,12 +83,15 @@ public class mainteleop extends LinearOpMode {
     private DcMotor intake = null;
     private DcMotor Shooter = null;
     private CRServo spindexer = null;
+
     private Servo scooper = null;
+    private Servo door = null;
     public Limelight3A limelight; //limelight camera
     public CRServo turretServo; //servo for the turret
     double LIMELIGHT_OFFSET = 0.0;    // Calibrate this once and it stays fixed
     double DEADZONE = 1.0;            // Ignore small tx values to prevent twitching
     double MAX_POWER = 0.3;           // Limit max spin speed
+    boolean buttonPressed = false;
 
 
     @Override
@@ -104,6 +107,7 @@ public class mainteleop extends LinearOpMode {
         intake = hardwareMap.get(DcMotor.class, "intake");
         spindexer = hardwareMap.get(CRServo.class, "spindexer");
         scooper = hardwareMap.get(Servo.class, "scooper");
+        door = hardwareMap.get(Servo.class, "door");
         Shooter = hardwareMap.get(DcMotor.class, "Shooter");
         turretServo = hardwareMap.get(CRServo.class, "turretServo");
 
@@ -126,6 +130,8 @@ public class mainteleop extends LinearOpMode {
         backRightDrive.setDirection(DcMotor.Direction.FORWARD);
 
         scooper.setDirection(Servo.Direction.REVERSE);
+
+
 
         // Wait for the game to start (driver presses START)
         telemetry.addData("Status", "Initialized");
@@ -224,18 +230,20 @@ public class mainteleop extends LinearOpMode {
 
             //intake code
             if (gamepad2.a){
+                door.setPosition(0);
+                sleep(100);
                 intake.setPower(-0.5);
             }
             else {
-                intake.setPower(-0.01);
+                door.setPosition(0.5);
+                intake.setPower(0.01);
             }
 
             //spindexer code
-            if(gamepad2.b){
-                spindexer.setPower(0.5);
-            }
-            else{
-                spindexer.setPower(0.0);
+            if (gamepad2.b) {
+                spindexer.setPower(-1);
+            } else {
+                spindexer.setPower(0);
             }
 
             //shooter code
@@ -272,6 +280,7 @@ public class mainteleop extends LinearOpMode {
 
 
     }
+
 
 }
 
