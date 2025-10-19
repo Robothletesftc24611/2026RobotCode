@@ -37,6 +37,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import java.util.List;
@@ -81,8 +82,8 @@ public class mainteleop extends LinearOpMode {
 
     private DcMotor intake = null;
     private DcMotor Shooter = null;
-
     private CRServo spindexer = null;
+    private Servo scooper = null;
     public Limelight3A limelight; //limelight camera
     public CRServo turretServo; //servo for the turret
     double LIMELIGHT_OFFSET = 0.0;    // Calibrate this once and it stays fixed
@@ -102,6 +103,7 @@ public class mainteleop extends LinearOpMode {
 
         intake = hardwareMap.get(DcMotor.class, "intake");
         spindexer = hardwareMap.get(CRServo.class, "spindexer");
+        scooper = hardwareMap.get(Servo.class, "scooper");
         Shooter = hardwareMap.get(DcMotor.class, "Shooter");
         turretServo = hardwareMap.get(CRServo.class, "turretServo");
 
@@ -122,6 +124,8 @@ public class mainteleop extends LinearOpMode {
         backLeftDrive.setDirection(DcMotor.Direction.REVERSE);
         frontRightDrive.setDirection(DcMotor.Direction.FORWARD);
         backRightDrive.setDirection(DcMotor.Direction.FORWARD);
+
+        scooper.setDirection(Servo.Direction.REVERSE);
 
         // Wait for the game to start (driver presses START)
         telemetry.addData("Status", "Initialized");
@@ -223,8 +227,9 @@ public class mainteleop extends LinearOpMode {
                 intake.setPower(-0.5);
             }
             else {
-                intake.setPower(0.0);
+                intake.setPower(-0.01);
             }
+
             //spindexer code
             if(gamepad2.b){
                 spindexer.setPower(0.5);
@@ -233,15 +238,31 @@ public class mainteleop extends LinearOpMode {
                 spindexer.setPower(0.0);
             }
 
+            //shooter code
             if(gamepad2.x){
-                Shooter.setPower(-1.00);
+                Shooter.setPower(-0.8);
             }
-            else {
+            else if(gamepad2.x && gamepad2.right_bumper){
+                Shooter.setPower(-1);
+            } else {
                 Shooter.setPower(0);
             }
 
+            
+            //scooper code
+            if(gamepad2.y){
+                scooper.setPosition(0.5);
+            }
+            else{
+                scooper.setPosition(0);
+            }
+
+
+
+
             // Show the elapsed game time and wheel power.
             telemetry.addData("Status", "Run Time: " + runtime.toString());
+            telemetry.addData("scooper position", scooper.getPosition());
             telemetry.addData("Front left/Right", "%4.2f, %4.2f", frontLeftPower, frontRightPower);
             telemetry.addData("Back  left/Right", "%4.2f, %4.2f", backLeftPower, backRightPower);
             telemetry.update();
