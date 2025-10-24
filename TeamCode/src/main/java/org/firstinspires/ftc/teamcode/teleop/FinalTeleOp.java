@@ -22,7 +22,7 @@ public class FinalTeleOp extends LinearOpMode {
     private DcMotor backRightDrive = null;
     private DcMotor intake = null;
     private DcMotor Shooter = null;
-    private CRServo spindexer = null;
+    private Servo spindexer = null;
 
     private Servo scooper = null;
     private Servo door = null;
@@ -31,7 +31,7 @@ public class FinalTeleOp extends LinearOpMode {
 
     double LIMELIGHT_OFFSET = 0.0;    // Calibrate this once and it stays fixed
     double DEADZONE = 1.0;            // Ignore small tx values to prevent twitching
-    double MAX_POWER = 0.3;           // Limit max spin speed
+    double MAX_POWER = 0.7;           // Limit max spin speed
     boolean buttonPressed = false;
 
     @Override
@@ -42,7 +42,7 @@ public class FinalTeleOp extends LinearOpMode {
         backRightDrive = hardwareMap.get(DcMotor.class, "back_right_drive");
 
         intake = hardwareMap.get(DcMotor.class, "intake");
-        spindexer = hardwareMap.get(CRServo.class, "spindexer");
+        spindexer = hardwareMap.get(Servo.class, "spindexer");
         scooper = hardwareMap.get(Servo.class, "scooper");
         door = hardwareMap.get(Servo.class, "door");
         Shooter = hardwareMap.get(DcMotor.class, "Shooter");
@@ -61,6 +61,8 @@ public class FinalTeleOp extends LinearOpMode {
 
         telemetry.addData("Status", "Initialized");
         telemetry.update();
+
+        waitForStart();
 
         while (opModeIsActive()) {
             limelight.start();
@@ -134,18 +136,11 @@ public class FinalTeleOp extends LinearOpMode {
             //intake code
             if (gamepad2.a){
                 intake.setPower(-0.5);
-                door.setPosition(0.5);
+                door.setPosition(0.4);
             }
             else {
                 intake.setPower(0.0);
-                door.setPosition(0.0);
-            }
-
-            //spindexer code
-            if (gamepad2.b) {
-                spindexer.setPower(-1);
-            } else {
-                spindexer.setPower(0);
+                door.setPosition(-0.5);
             }
 
             //shooter code
@@ -170,6 +165,9 @@ public class FinalTeleOp extends LinearOpMode {
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.addData("Front left/Right", "%4.2f, %4.2f", frontLeftPower, frontRightPower);
             telemetry.addData("Back  left/Right", "%4.2f, %4.2f", backLeftPower, backRightPower);
+            telemetry.addData("Door Servo Position", door.getPosition());
+            telemetry.addData("Shooter Speed",Shooter.getPower());
+            telemetry.addData("Intake Speed", intake.getPower());
             telemetry.update();
         }
     }
