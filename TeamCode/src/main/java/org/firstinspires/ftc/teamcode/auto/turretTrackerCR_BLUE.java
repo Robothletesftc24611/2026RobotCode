@@ -4,6 +4,7 @@ package org.firstinspires.ftc.teamcode.auto;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -13,6 +14,7 @@ import java.util.List;
 
 
 @TeleOp(name = "Turret Tracker CR", group = "Linear OpMode")
+@Disabled
 public class turretTrackerCR_BLUE extends OpMode {
 
 

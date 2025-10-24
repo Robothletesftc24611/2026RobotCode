@@ -29,19 +29,11 @@
 
 package org.firstinspires.ftc.teamcode.teleop;
 
-import com.qualcomm.hardware.limelightvision.LLResult;
-import com.qualcomm.hardware.limelightvision.LLResultTypes;
-import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
-import java.util.List;
 
 /*
  * This file contains an example of a Linear "OpMode".
@@ -70,9 +62,10 @@ import java.util.List;
  * Use Android Studio to Copy this Class, and Paste it into your team's code folder with a new name.
  * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list
  */
-@Disabled
-@TeleOp(name="Test TeleOp", group="Linear OpMode")
-public class mainteleop extends LinearOpMode {
+
+@TeleOp(name="Robot Oriented Drive", group="Linear OpMode")
+
+public class RobotOrientedDrive extends LinearOpMode {
 
     // Declare OpMode members for each of the 4 motors.
     private ElapsedTime runtime = new ElapsedTime();
@@ -80,20 +73,6 @@ public class mainteleop extends LinearOpMode {
     private DcMotor backLeftDrive = null;
     private DcMotor frontRightDrive = null;
     private DcMotor backRightDrive = null;
-
-    private DcMotor intake = null;
-    private DcMotor Shooter = null;
-    private CRServo spindexer = null;
-
-    private Servo scooper = null;
-    private Servo door = null;
-    public Limelight3A limelight; //limelight camera
-    public CRServo turretServo; //servo for the turret
-    double LIMELIGHT_OFFSET = 0.0;    // Calibrate this once and it stays fixed
-    double DEADZONE = 1.0;            // Ignore small tx values to prevent twitching
-    double MAX_POWER = 0.3;           // Limit max spin speed
-    boolean buttonPressed = false;
-
 
     @Override
     public void runOpMode() {
@@ -104,16 +83,6 @@ public class mainteleop extends LinearOpMode {
         backLeftDrive = hardwareMap.get(DcMotor.class, "back_left_drive");
         frontRightDrive = hardwareMap.get(DcMotor.class, "front_right_drive");
         backRightDrive = hardwareMap.get(DcMotor.class, "back_right_drive");
-
-        intake = hardwareMap.get(DcMotor.class, "intake");
-        spindexer = hardwareMap.get(CRServo.class, "spindexer");
-        scooper = hardwareMap.get(Servo.class, "scooper");
-        door = hardwareMap.get(Servo.class, "door");
-        Shooter = hardwareMap.get(DcMotor.class, "Shooter");
-        turretServo = hardwareMap.get(CRServo.class, "turretServo");
-
-        limelight = hardwareMap.get(Limelight3A.class, "limelight");
-        limelight.pipelineSwitch(1);
 
         // ########################################################################################
         // !!!            IMPORTANT Drive Information. Test your motor directions.            !!!!!
@@ -130,11 +99,6 @@ public class mainteleop extends LinearOpMode {
         frontRightDrive.setDirection(DcMotor.Direction.FORWARD);
         backRightDrive.setDirection(DcMotor.Direction.FORWARD);
 
-        scooper.setDirection(Servo.Direction.REVERSE);
-        door.setPosition(0.0);
-
-
-
         // Wait for the game to start (driver presses START)
         telemetry.addData("Status", "Initialized");
         telemetry.update();
@@ -144,7 +108,6 @@ public class mainteleop extends LinearOpMode {
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
-            limelight.start();
             double max;
 
             // POV Mode uses left joystick to go forward & strafe, and right joystick to rotate.
@@ -195,93 +158,10 @@ public class mainteleop extends LinearOpMode {
             backLeftDrive.setPower(backLeftPower);
             backRightDrive.setPower(backRightPower);
 
-            // Turret Code
-            LLResult llResult = limelight.getLatestResult(); //get latest result of what the camera sees
-            List<LLResultTypes.FiducialResult> fiducials = llResult.getFiducialResults(); //sort them into a list
-
-
-            if (!fiducials.isEmpty()) {
-                int tagId = fiducials.get(0).getFiducialId(); //get the most recent reading from the list
-                double tx = llResult.getTx(); //get the x axis offset of the most recent reading to center the turret properly
-                double correctedTx = tx - LIMELIGHT_OFFSET;
-
-
-                telemetry.addData("AprilTag ID", tagId);  //display values so it is easier to debug
-                telemetry.addData("Raw tx", "%.2f", tx);
-                telemetry.addData("Corrected tx", "%.2f", correctedTx);
-
-
-                if (Math.abs(correctedTx) > DEADZONE) { //only spin if it is needed (for small changes (<1 degree) there is no point of spinning)
-                    double power = -correctedTx / 30.0; // make sure that the range for power is always -1 to 1
-                    power = Math.max(-MAX_POWER, Math.min(MAX_POWER, power)); //make sure power never goes over 0.3
-
-
-                    turretServo.setPower(power); //set power value to the servo
-                    telemetry.addData("Turret Status", "Spinning");
-                    telemetry.addData("Servo Power", "%.2f", power);
-                } else {
-                    turretServo.setPower(0.0); // Stop when centered
-                    telemetry.addData("Turret Status", "Centered");
-                }
-            } else {
-                turretServo.setPower(0.0); // Stop if no tag
-                telemetry.addData("AprilTag", "Not Found");
-                telemetry.addData("Turret Status", "Holding");
-            }
-
-
-            //intake code
-            if (gamepad2.a){
-                intake.setPower(-0.5);
-                door.setPosition(0.5);
-            }
-            else {
-                intake.setPower(0.0);
-                door.setPosition(0.0);
-            }
-
-            //spindexer code
-            if (gamepad2.b) {
-                spindexer.setPower(-1);
-            } else {
-                spindexer.setPower(0);
-            }
-
-            //shooter code
-            if(gamepad2.x){
-                Shooter.setPower(-0.8);
-            }
-            else if(gamepad2.x && gamepad2.right_bumper){
-                Shooter.setPower(-1);
-            } else {
-                Shooter.setPower(0);
-            }
-
-            
-            //scooper code
-            if(gamepad2.y){
-                scooper.setPosition(0.5);
-            }
-            else{
-                scooper.setPosition(0);
-            }
-
-
-
-
             // Show the elapsed game time and wheel power.
             telemetry.addData("Status", "Run Time: " + runtime.toString());
-            telemetry.addData("scooper position", scooper.getPosition());
             telemetry.addData("Front left/Right", "%4.2f, %4.2f", frontLeftPower, frontRightPower);
             telemetry.addData("Back  left/Right", "%4.2f, %4.2f", backLeftPower, backRightPower);
             telemetry.update();
-
-
         }
-
-
-    }
-
-
-}
-
+    }}
