@@ -34,6 +34,36 @@ public class FinalTeleOp extends LinearOpMode {
     double MAX_POWER = 0.7;           // Limit max spin speed
     boolean buttonPressed = false;
 
+    public void shootThreeBalls(){
+        Shooter.setPower(-1.0);
+
+        sleep(1000);
+
+        spindexer.setPosition(0.0);
+        sleep(1500);
+        scooper.setPosition(0.5);
+        sleep(1000);
+
+        scooper.setPosition(0.0);
+
+        spindexer.setPosition(0.4);
+        sleep(1000);
+        scooper.setPosition(0.5);
+        sleep(1000);
+
+        scooper.setPosition(0.0);
+
+        spindexer.setPosition(0.85);
+        sleep(1000);
+        scooper.setPosition(0.5);
+        sleep(1000);
+
+        scooper.setPosition(0.0);
+
+        Shooter.setPower(0.0);
+    }
+
+
     @Override
     public void runOpMode() {
         frontLeftDrive = hardwareMap.get(DcMotor.class, "front_left_drive");
@@ -136,22 +166,18 @@ public class FinalTeleOp extends LinearOpMode {
             //intake code
             if (gamepad2.a){
                 intake.setPower(-0.5);
-                door.setPosition(0.4);
+                door.setPosition(-0.5);
             }
             else {
                 intake.setPower(0.0);
-                door.setPosition(-0.5);
+                door.setPosition(0.2);
             }
 
             //shooter code
             if(gamepad2.x){
-                Shooter.setPower(-0.8);
+                shootThreeBalls();
             }
-            else if(gamepad2.x && gamepad2.right_bumper){
-                Shooter.setPower(-1);
-            } else {
-                Shooter.setPower(0);
-            }
+
 
 
             //scooper code
