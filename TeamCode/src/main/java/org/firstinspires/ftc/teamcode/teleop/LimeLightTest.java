@@ -7,17 +7,25 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 @TeleOp
 public class LimeLightTest extends OpMode{
-    Limelight3A limelight = hardwareMap.get(Limelight3A.class, "limelight");
+    private Limelight3A limelight;
+
+    private double distance;
 
     public void init() {
         // Limelight config
-        limelight.setPollRateHz(100); // How many times (per second) we get data
-        limelight.pipelineSwitch(1);
+        limelight = hardwareMap.get(Limelight3A.class, "limelight");
+        limelight.pipelineSwitch(1); //Test with red goal
+    }
+
+    public void start(){
         limelight.start();
     }
 
+
     public void loop() {
-        LLResult result = limelight.getLatestResult();
-        telemetry.addData("Target Area:", result.getTa());
+        LLResult llresult = limelight.getLatestResult();
+        if (llresult != null && llresult.isValid()) {
+            telemetry.addData("Target Area:", llresult.getTa());
+        }
     }
 }
