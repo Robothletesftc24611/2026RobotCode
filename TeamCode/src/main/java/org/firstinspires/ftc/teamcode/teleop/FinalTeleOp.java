@@ -97,7 +97,7 @@ public class FinalTeleOp extends LinearOpMode {
         scooper.setDirection(Servo.Direction.REVERSE);
         door.setPosition(0.0);
 
-        double[] positions = {0.4, 0.8, 1};
+        double[] positions = {-1, 0, 0.5,  1};
         int currentPositionIndex = 0;
 
         boolean buttonPreviouslyPressed = false;
