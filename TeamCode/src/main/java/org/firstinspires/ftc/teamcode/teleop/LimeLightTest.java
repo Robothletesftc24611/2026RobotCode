@@ -5,7 +5,8 @@ import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-@TeleOp
+
+@TeleOp(name="Limelight Distance", group="OpMode")
 public class LimeLightTest extends OpMode{
     private Limelight3A limelight;
 
@@ -25,7 +26,14 @@ public class LimeLightTest extends OpMode{
     public void loop() {
         LLResult llresult = limelight.getLatestResult();
         if (llresult != null && llresult.isValid()) {
+            distance = getDistanceFromTag(llresult.getTa());
             telemetry.addData("Target Area:", llresult.getTa());
+            telemetry.addData("distance from tag", distance);
         }
+    }
+
+    public double getDistanceFromTag(double ta) {
+        double distance = ((-33.74145 * ta) + 194.923);
+        return distance;
     }
 }

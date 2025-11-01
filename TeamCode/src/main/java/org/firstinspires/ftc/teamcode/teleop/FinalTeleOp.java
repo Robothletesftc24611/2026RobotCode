@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
@@ -37,6 +38,8 @@ public class FinalTeleOp extends LinearOpMode {
     double DEADZONE = 1.0;            // Ignore small tx values to prevent twitching
     double MAX_POWER = 0.7;           // Limit max spin speed
     boolean buttonPressed = false;
+
+    String motif;
 
     ColorSensor colorSensor;
 
@@ -97,12 +100,23 @@ public class FinalTeleOp extends LinearOpMode {
         scooper.setDirection(Servo.Direction.REVERSE);
         door.setPosition(0.0);
 
-        double[] positions = {0.4, 0.8, 1};
+        double[] positions = {0.35, 0.8, 1};
         int currentPositionIndex = 0;
 
         boolean buttonPreviouslyPressed = false;
 
+        if (gamepad1.dpad_down){
+            motif = "PGP";
+        }
+        else if(gamepad1.dpad_left){
+            motif = "GPP";
+        }
+        else if(gamepad1.dpad_right){
+            motif = "PPG";
+        }
+
         telemetry.addData("Status", "Initialized");
+        telemetry.addData("motif in match", motif);
         telemetry.update();
 
         waitForStart();
@@ -115,9 +129,9 @@ public class FinalTeleOp extends LinearOpMode {
             double max;
 
             // POV Mode uses left joystick to go forward & strafe, and right joystick to rotate.
-            double axial   = gamepad2.left_stick_y;  // Note: pushing stick forward gives negative value
-            double lateral =  -gamepad2.left_stick_x;
-            double yaw     =  gamepad2.right_stick_x;
+            double axial   = gamepad1.left_stick_y;  // Note: pushing stick forward gives negative value
+            double lateral =  -gamepad1.left_stick_x;
+            double yaw     =  gamepad1.right_stick_x;
 
             // Combine the joystick requests for each axis-motion to determine each wheel's power.
             // Set up a variable for each drive wheel to save the power level for telemetry.
@@ -182,7 +196,7 @@ public class FinalTeleOp extends LinearOpMode {
             //intake code
             if (gamepad2.right_bumper){
                 intake.setPower(-0.5);
-                door.setPosition(-0.5);
+                door.setPosition(0.05);
             }
             else {
                 intake.setPower(0.0);
@@ -190,6 +204,7 @@ public class FinalTeleOp extends LinearOpMode {
             }
 
             if (buttonPressed && !buttonPreviouslyPressed){
+                sleep(150);
                 currentPositionIndex++;
                 if (currentPositionIndex >= positions.length){
                     currentPositionIndex = 0;
