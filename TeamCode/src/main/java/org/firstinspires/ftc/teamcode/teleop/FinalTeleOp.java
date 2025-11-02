@@ -28,6 +28,8 @@ public class FinalTeleOp extends LinearOpMode {
     private Servo spindexer = null;
 
     private Servo scooper = null;
+
+    private CRServo intakeServo = null;
     private Servo door = null;
     public Limelight3A limelight;
     public CRServo turretServo;
@@ -39,12 +41,14 @@ public class FinalTeleOp extends LinearOpMode {
     double MAX_POWER = 0.7;           // Limit max spin speed
     boolean buttonPressed = false;
 
-    String motif;
+    private final String[] motifs = {"GPP, PGP, PPG"};
+    private int motifIndex = 0;
+    private boolean aPressedLast = false;
 
     ColorSensor colorSensor;
 
     public void shootThreeBalls(){
-        Shooter.setPower(-0.7);
+        Shooter.setPower(-0.8);
 
         sleep(1000);
 
@@ -88,6 +92,7 @@ public class FinalTeleOp extends LinearOpMode {
         door = hardwareMap.get(Servo.class, "door");
         Shooter = hardwareMap.get(DcMotor.class, "Shooter");
         turretServo = hardwareMap.get(CRServo.class, "turretServo");
+        intakeServo = hardwareMap.get(CRServo.class, "intakeServo");
 
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
         limelight.pipelineSwitch(1);
@@ -100,23 +105,26 @@ public class FinalTeleOp extends LinearOpMode {
         scooper.setDirection(Servo.Direction.REVERSE);
         door.setPosition(0.0);
 
+        while (!isStarted() && !isStopRequested()){
+            if (gamepad1.a && !aPressedLast){
+                motifIndex = (motifIndex + 1) % motifs.length;
+            }
+            aPressedLast = gamepad1.a;
+
+            telemetry.addLine("Press A to cycle through motifs");
+            telemetry.addData("Selected Motif", motifs[motifIndex]);
+            telemetry.update();
+
+            sleep(100);
+        }
+
         double[] positions = {0.35, 0.8, 1};
         int currentPositionIndex = 0;
 
         boolean buttonPreviouslyPressed = false;
 
-        if (gamepad1.dpad_down){
-            motif = "PGP";
-        }
-        else if(gamepad1.dpad_left){
-            motif = "GPP";
-        }
-        else if(gamepad1.dpad_right){
-            motif = "PPG";
-        }
 
         telemetry.addData("Status", "Initialized");
-        telemetry.addData("motif in match", motif);
         telemetry.update();
 
         waitForStart();
@@ -129,9 +137,9 @@ public class FinalTeleOp extends LinearOpMode {
             double max;
 
             // POV Mode uses left joystick to go forward & strafe, and right joystick to rotate.
-            double axial   = gamepad1.left_stick_y;  // Note: pushing stick forward gives negative value
-            double lateral =  -gamepad1.left_stick_x;
-            double yaw     =  gamepad1.right_stick_x;
+            double axial   = gamepad2.left_stick_y;  // Note: pushing stick forward gives negative value
+            double lateral =  -gamepad2.left_stick_x;
+            double yaw     =  gamepad2.right_stick_x;
 
             // Combine the joystick requests for each axis-motion to determine each wheel's power.
             // Set up a variable for each drive wheel to save the power level for telemetry.
@@ -139,6 +147,20 @@ public class FinalTeleOp extends LinearOpMode {
             double frontRightPower = axial - lateral - yaw;
             double backLeftPower   = axial - lateral + yaw;
             double backRightPower  = axial + lateral - yaw;
+
+            //limit the speed of the drivetrain, change to higher when more driver practice is done, now is 250rpm
+            if (gamepad2.right_trigger > 0){
+                frontLeftPower = Range.clip(frontLeftPower, -0.8, 0.8);
+                frontRightPower = Range.clip(frontRightPower, -0.8, 0.8);
+                backLeftPower = Range.clip(backLeftPower, -0.8, 0.8);
+                backRightPower = Range.clip(backRightPower, -0.8, 0.8);
+            }
+            else{
+                frontLeftPower = Range.clip(frontLeftPower, -0.55, 0.55);
+                frontRightPower = Range.clip(frontRightPower, -0.55, 0.55);
+                backLeftPower = Range.clip(backLeftPower, -0.55, 0.55);
+                backRightPower = Range.clip(backRightPower, -0.55, 0.55);
+            }
 
             // Normalize the values so no wheel power exceeds 100%
             // This ensures that the robot maintains the desired motion.
@@ -197,10 +219,12 @@ public class FinalTeleOp extends LinearOpMode {
             if (gamepad2.right_bumper){
                 intake.setPower(-0.5);
                 door.setPosition(0.05);
+                intakeServo.setPower(1.0);
             }
             else {
                 intake.setPower(0.0);
                 door.setPosition(0.2);
+                intakeServo.setPower(0.0);
             }
 
             if (buttonPressed && !buttonPreviouslyPressed){
