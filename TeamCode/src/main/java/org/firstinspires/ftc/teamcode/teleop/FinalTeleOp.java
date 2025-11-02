@@ -41,7 +41,7 @@ public class FinalTeleOp extends LinearOpMode {
     double MAX_POWER = 0.7;           // Limit max spin speed
     boolean buttonPressed = false;
 
-    private final String[] motifs = {"GPP, PGP, PPG"};
+    private final String[] motifs = {"GPP", "PGP", "PPG"};
     private int motifIndex = 0;
     private boolean aPressedLast = false;
 
