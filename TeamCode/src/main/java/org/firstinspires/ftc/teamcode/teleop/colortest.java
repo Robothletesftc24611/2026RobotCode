@@ -24,7 +24,7 @@ public class colortest extends LinearOpMode {
                 detectedColor = "Green";
             }
             // Detect Purple
-            else if ((red >= 70) && (blue >= 110) && (green <= 120)){
+            else if ((red >= 70) && (blue >= 110)){
                 detectedColor = "Purple";
             }
 

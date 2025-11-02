@@ -47,36 +47,6 @@ public class FinalTeleOp extends LinearOpMode {
 
     ColorSensor colorSensor;
 
-    public void shootThreeBalls(){
-        Shooter.setPower(-0.8);
-
-        sleep(1000);
-
-        spindexer.setPosition(0.0);
-        sleep(1500);
-        scooper.setPosition(0.5);
-        sleep(1000);
-
-        scooper.setPosition(0.0);
-
-        spindexer.setPosition(0.4);
-        sleep(1000);
-        scooper.setPosition(0.5);
-        sleep(1000);
-
-        scooper.setPosition(0.0);
-
-        spindexer.setPosition(0.85);
-        sleep(1000);
-        scooper.setPosition(0.5);
-        sleep(1000);
-
-        scooper.setPosition(0.0);
-
-        Shooter.setPower(0.0);
-    }
-
-
     @Override
     public void runOpMode() {
         frontLeftDrive = hardwareMap.get(DcMotor.class, "front_left_drive");
@@ -137,9 +107,9 @@ public class FinalTeleOp extends LinearOpMode {
             double max;
 
             // POV Mode uses left joystick to go forward & strafe, and right joystick to rotate.
-            double axial   = gamepad2.left_stick_y;  // Note: pushing stick forward gives negative value
-            double lateral =  -gamepad2.left_stick_x;
-            double yaw     =  gamepad2.right_stick_x;
+            double axial   = gamepad1.left_stick_y;  // Note: pushing stick forward gives negative value
+            double lateral =  -gamepad1.left_stick_x;
+            double yaw     =  gamepad1.right_stick_x;
 
             // Combine the joystick requests for each axis-motion to determine each wheel's power.
             // Set up a variable for each drive wheel to save the power level for telemetry.
@@ -149,7 +119,7 @@ public class FinalTeleOp extends LinearOpMode {
             double backRightPower  = axial + lateral - yaw;
 
             //limit the speed of the drivetrain, change to higher when more driver practice is done, now is 250rpm
-            if (gamepad2.right_trigger > 0){
+            if (gamepad1.right_trigger > 0){
                 frontLeftPower = Range.clip(frontLeftPower, -0.8, 0.8);
                 frontRightPower = Range.clip(frontRightPower, -0.8, 0.8);
                 backLeftPower = Range.clip(backLeftPower, -0.8, 0.8);
@@ -240,16 +210,134 @@ public class FinalTeleOp extends LinearOpMode {
 
             //shooter code
             if(gamepad2.x){
-                shootThreeBalls();
+                Shooter.setPower(-0.8);
+
+                sleep(1000);
+
+                spindexer.setPosition(0.0);
+                sleep(1500);
+                scooper.setPosition(0.5);
+                sleep(1000);
+
+                scooper.setPosition(0.0);
+
+                spindexer.setPosition(0.4);
+                sleep(1000);
+                scooper.setPosition(0.5);
+                sleep(1000);
+
+                scooper.setPosition(0.0);
+
+                spindexer.setPosition(0.85);
+                sleep(1000);
+                scooper.setPosition(0.5);
+                sleep(1000);
+
+                scooper.setPosition(0.0);
+
+                Shooter.setPower(0.0);
             }
 
+            int red = colorSensor.red();
+            int green = colorSensor.green();
+            int blue = colorSensor.blue();
+
+            telemetry.addData("Red", red);
+            telemetry.addData("Green", green);
+            telemetry.addData("Blue", blue);
 
             //scooper code
             if(gamepad2.y){
-                scooper.setPosition(0.5);
-            }
-            else{
-                scooper.setPosition(0);
+
+                if (motifs[motifIndex] == "GPP"){
+                    Shooter.setPower(-0.8);
+
+                    sleep(1000);
+
+                    spindexer.setPosition(0.0);
+                    sleep(2000);
+                    if ((green >= 60) && (blue <= 130) && (red <= 65)){
+                        scooper.setPosition(0.5);
+                        sleep(1000);
+
+                        scooper.setPosition(0.0);
+
+                        spindexer.setPosition(0.4);
+                        sleep(1000);
+                        scooper.setPosition(0.5);
+                        sleep(1000);
+
+                        scooper.setPosition(0.0);
+
+                        spindexer.setPosition(0.85);
+                        sleep(1000);
+                        scooper.setPosition(0.5);
+                        sleep(1000);
+
+                        scooper.setPosition(0.0);
+
+                        Shooter.setPower(0.0);
+                    }
+                    else{
+                        spindexer.setPosition(0.4);
+                        sleep(2000);
+                        if ((green >= 60) && (blue <= 130) && (red <= 65)){
+                            scooper.setPosition(0.5);
+                            sleep(1000);
+
+                            scooper.setPosition(0.0);
+
+                            spindexer.setPosition(0.0);
+                            sleep(1000);
+                            scooper.setPosition(0.5);
+                            sleep(1000);
+
+                            scooper.setPosition(0.0);
+
+                            spindexer.setPosition(0.85);
+                            sleep(1000);
+                            scooper.setPosition(0.5);
+                            sleep(1000);
+
+                            scooper.setPosition(0.0);
+
+                            Shooter.setPower(0.0);
+                        }
+                        else{
+                            spindexer.setPosition(0.85);
+                            sleep(1500);
+                            scooper.setPosition(0.5);
+                            sleep(1000);
+
+                            scooper.setPosition(0.0);
+
+                            spindexer.setPosition(0.4);
+                            sleep(1000);
+                            scooper.setPosition(0.5);
+                            sleep(1000);
+
+                            scooper.setPosition(0.0);
+
+                            spindexer.setPosition(0.0);
+                            sleep(1000);
+                            scooper.setPosition(0.5);
+                            sleep(1000);
+
+                            scooper.setPosition(0.0);
+
+                            Shooter.setPower(0.0);
+                        }
+
+                    }
+
+
+                }
+                else if(motifs[motifIndex] == "PGP"){
+
+                }
+                else if(motifs[motifIndex] == "PPG"){
+
+                }
             }
 
             telemetry.addData("Status", "Run Time: " + runtime.toString());
@@ -258,6 +346,7 @@ public class FinalTeleOp extends LinearOpMode {
             telemetry.addData("Door Servo Position", door.getPosition());
             telemetry.addData("Shooter Speed",Shooter.getPower());
             telemetry.addData("Intake Speed", intake.getPower());
+
             telemetry.addData("Spindexer position", spindexer.getPosition());
             telemetry.update();
         }
