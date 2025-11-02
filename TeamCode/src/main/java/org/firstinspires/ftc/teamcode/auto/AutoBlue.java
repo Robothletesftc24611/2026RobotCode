@@ -42,14 +42,14 @@ public class AutoBlue extends OpMode {
     private final Pose pickup1_score = new Pose(17.2555, 84.293, Math.toRadians(180));
     private final Pose pickup2_start = new Pose(45.353, 60.471, Math.toRadians(180));
     private final Pose pickup2_score = new Pose(17.2555, 60.471, Math.toRadians(180));
-    
+
 
     /** These change the states of the paths and actions. It will also reset the timers of the individual switches **/
     public void setPathState(int pState) {
         pathState = pState;
         pathTimer.resetTimer();
     }
-    private PathChain motif, scorePreload, pos_,score1
+    private PathChain motif, scorePreload, pos_,score1;
     public void buildPaths() {
         // Grab & Collect Pickup 1
         motif = follower.pathBuilder()
@@ -57,7 +57,7 @@ public class AutoBlue extends OpMode {
                 .setLinearHeadingInterpolation(scorePose.getHeading(), obelisk.getHeading())
                 .build();
         scorePreload = follower.pathBuilder()
-                .addPath(new BezierLine((obelisk,scorePose))
+                .addPath(new BezierLine(obelisk , scorePose))
                 .setLinearHeadingInterpolation(obelisk.getHeading(),scorePose.getHeading())
                 .build();
 
