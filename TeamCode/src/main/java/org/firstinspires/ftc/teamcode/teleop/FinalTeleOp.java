@@ -97,7 +97,7 @@ public class FinalTeleOp extends LinearOpMode {
         scooper.setDirection(Servo.Direction.REVERSE);
         door.setPosition(0.0);
 
-        double[] positions = {-1, 0, 0.5,  1};
+        double[] positions = {0.1, 0.5,  1};
         int currentPositionIndex = 0;
 
         boolean buttonPreviouslyPressed = false;
@@ -115,9 +115,9 @@ public class FinalTeleOp extends LinearOpMode {
             double max;
 
             // POV Mode uses left joystick to go forward & strafe, and right joystick to rotate.
-            double axial   = gamepad2.left_stick_y;  // Note: pushing stick forward gives negative value
-            double lateral =  -gamepad2.left_stick_x;
-            double yaw     =  gamepad2.right_stick_x;
+            double axial   = gamepad1.left_stick_y;  // Note: pushing stick forward gives negative value
+            double lateral =  -gamepad1.left_stick_x;
+            double yaw     =  gamepad1.right_stick_x;
 
             // Combine the joystick requests for each axis-motion to determine each wheel's power.
             // Set up a variable for each drive wheel to save the power level for telemetry.
@@ -256,8 +256,9 @@ public class FinalTeleOp extends LinearOpMode {
                 scooper.setPosition(0.0);
 
                 Shooter.setPower(0.0);
-
             }
+
+
 
 
             //scooper code
