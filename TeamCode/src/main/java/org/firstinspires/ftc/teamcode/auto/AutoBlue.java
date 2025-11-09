@@ -5,18 +5,18 @@ import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
 import com.pedropathing.util.Timer;
-import com.qualcomm.hardware.limelightvision.LLResult;
-import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.LLResultTypes;
+import com.qualcomm.hardware.limelightvision.LLStatus;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
-
-import java.util.List;
 
 @Autonomous(name = "BlueAuto")
 public class AutoBlue extends OpMode {
@@ -31,9 +31,6 @@ public class AutoBlue extends OpMode {
     private Servo scooper = null;
     private Servo door = null;
     public Limelight3A limelight;
-    double LIMELIGHT_OFFSET = 0.0;    // Calibrate this once and it stays fixed
-    double DEADZONE = 1.0;            // Ignore small tx values to prevent twitching
-    double MAX_POWER = 0.3;           // Limit max spin speed
     public CRServo turretServo;
 
     private Follower follower;
@@ -159,6 +156,11 @@ public class AutoBlue extends OpMode {
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
 
+        //limelight inits
+        limelight = hardwareMap.get(Limelight3A.class, "limelight");
+        limelight.setPollRateHz(100); // This sets how often we ask Limelight for data (100 times per second)
+        limelight.start(); // This tells Limelight to start looking!
+
         follower = Constants.createFollower(hardwareMap);
         follower.setStartingPose(startPose);
 
@@ -167,6 +169,7 @@ public class AutoBlue extends OpMode {
 
     @Override
     public void start() {
+        //set pipeline to only check for the motifs(i think)
         limelight.pipelineSwitch(0);
         opmodeTimer.resetTimer();
         follower.followPath(scorePreload);
@@ -175,41 +178,5 @@ public class AutoBlue extends OpMode {
     @Override
     public void loop() {
         follower.update();
-
-        LLResult llResult = limelight.getLatestResult(); //get latest result of what the camera sees
-        List<LLResultTypes.FiducialResult> fiducials = llResult.getFiducialResults(); //sort them into a list
-
-
-        if (!fiducials.isEmpty()) {
-            int tagId = fiducials.get(0).getFiducialId(); //get the most recent reading from the list
-            double tx = llResult.getTx(); //get the x axis offset of the most recent reading to center the turret properly
-            double correctedTx = tx - LIMELIGHT_OFFSET;
-
-
-            telemetry.addData("AprilTag ID", tagId);  //display values so it is easier to debug
-            telemetry.addData("Raw tx", "%.2f", tx);
-            telemetry.addData("Corrected tx", "%.2f", correctedTx);
-
-
-            if (Math.abs(correctedTx) > DEADZONE) { //only spin if it is needed (for small changes (<1 degree) there is no point of spinning)
-                double power = -correctedTx / 30.0; // make sure that the range for power is always -1 to 1
-                power = Math.max(-MAX_POWER, Math.min(MAX_POWER, power)); //make sure power never goes over 0.3
-
-
-                turretServo.setPower(power); //set power value to the servo
-                telemetry.addData("Turret Status", "Spinning");
-                telemetry.addData("Servo Power", "%.2f", power);
-            } else {
-                turretServo.setPower(0.0); // Stop when centered
-                telemetry.addData("Turret Status", "Centered");
-            }
-        } else {
-            turretServo.setPower(0.0); // Stop if no tag
-            telemetry.addData("AprilTag", "Not Found");
-            telemetry.addData("Turret Status", "Holding");
-        }
-
-
-        telemetry.update();
     }
 }
