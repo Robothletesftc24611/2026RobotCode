@@ -201,7 +201,62 @@ public class FinalTeleOp extends LinearOpMode {
 
             //shooter code
             if(gamepad2.x){
-                shootThreeBalls();
+                if (!fiducials.isEmpty()) {
+                    int tagId = fiducials.get(0).getFiducialId(); //get the most recent reading from the list
+                    double tx = llResult.getTx(); //get the x axis offset of the most recent reading to center the turret properly
+                    double correctedTx = tx - LIMELIGHT_OFFSET;
+
+
+                    telemetry.addData("AprilTag ID", tagId);  //display values so it is easier to debug
+                    telemetry.addData("Raw tx", "%.2f", tx);
+                    telemetry.addData("Corrected tx", "%.2f", correctedTx);
+
+
+                    if (Math.abs(correctedTx) > DEADZONE) { //only spin if it is needed (for small changes (<1 degree) there is no point of spinning)
+                        double power = -correctedTx / 30.0; // make sure that the range for power is always -1 to 1
+                        power = Math.max(-MAX_POWER, Math.min(MAX_POWER, power)); //make sure power never goes over 0.3
+
+
+                        turretServo.setPower(power); //set power value to the servo
+                        telemetry.addData("Turret Status", "Spinning");
+                        telemetry.addData("Servo Power", "%.2f", power);
+                    } else {
+                        turretServo.setPower(0.0); // Stop when centered
+                        telemetry.addData("Turret Status", "Centered");
+                    }
+                } else {
+                    turretServo.setPower(0.0); // Stop if no tag
+                    telemetry.addData("AprilTag", "Not Found");
+                    telemetry.addData("Turret Status", "Holding");
+                }
+
+                Shooter.setPower(-0.7);
+
+                sleep(1000);
+
+                spindexer.setPosition(0.0);
+                sleep(1500);
+                scooper.setPosition(0.5);
+                sleep(1000);
+
+                scooper.setPosition(0.0);
+
+                spindexer.setPosition(0.4);
+                sleep(1000);
+                scooper.setPosition(0.5);
+                sleep(1000);
+
+                scooper.setPosition(0.0);
+
+                spindexer.setPosition(0.85);
+                sleep(1000);
+                scooper.setPosition(0.5);
+                sleep(1000);
+
+                scooper.setPosition(0.0);
+
+                Shooter.setPower(0.0);
+
             }
 
 
