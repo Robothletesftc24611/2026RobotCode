@@ -30,31 +30,66 @@ public class red3 extends OpMode {
     private Follower follower;
     private Timer pathTimer, actionTimer, opmodeTimer;
     private int pathState;
+    private final double[] spindexerPositions = {0.0, 0.4, 0.85};
+    private int shootState = 0;
+    private int ballsShot = 0;
+    private boolean shootingDone = false;
 
-    private final Pose startPose = new Pose(110.8, 135.3, Math.toRadians(270));
-    private final Pose scorePose = new Pose(104.4, 104.6, Math.toRadians(225));
+    private final Pose startPose = new Pose(111.9, 134.3, Math.toRadians(270));
+    private final Pose scorePose = new Pose(106.4, 106.6, Math.toRadians(225));
 
-    private Path scorePreload;
+    private final Pose finalPose = new Pose(124, 100, Math.toRadians(225));
+
+    private Path scorePreload, park;
 
     public void buildPaths(){
         scorePreload = new Path(new BezierLine(startPose,scorePose));
         scorePreload.setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading());
+
+        park = new Path(new BezierLine(scorePose, finalPose));
+        scorePreload.setConstantHeadingInterpolation(scorePose.getHeading());
     }
 
-    public void shootThree(){
-        actionTimer.resetTimer();
-        Shooter.setPower(-0.7);
-        spindexer.setPosition(0.0);
+    public void shootThreeUpdate(){
+        switch(shootState){
+            case 0:
+                Shooter.setPower(-0.7);
+                ballsShot = 0;
+                spindexer.setPosition(spindexerPositions[ballsShot]);
+                actionTimer.resetTimer();
+                shootState = 10;
+                break;
+            case 10:
+                if (actionTimer.getElapsedTimeSeconds() > 1){
+                    actionTimer.resetTimer();
+                    shootState = 1;
+                }
+                break;
+            case 1:
+                if (actionTimer.getElapsedTimeSeconds() > 0.75){
+                    scooper.setPosition(0.5);
+                    actionTimer.resetTimer();
+                    shootState = 2;
+                }
+                break;
+            case 2:
+                if (actionTimer.getElapsedTimeSeconds() > 0.5){
+                    scooper.setPosition(0.0);
+                    ballsShot++;
 
-        if (spindexer.getPosition() == 0.0){
-            actionTimer.resetTimer();
-            telemetry.addData("spindexer position", "0.0");
-            if (actionTimer.getElapsedTimeSeconds() > 2){
-                scooper.setPosition(0.5);
-                telemetry.addData("scooper position", "0.5");
-            }
+                    if (ballsShot < spindexerPositions.length){
+                        spindexer.setPosition(spindexerPositions[ballsShot]);
+                        actionTimer.resetTimer();
+                        shootState = 1;
+                    } else{
+                        Shooter.setPower(0.0);
+                        shootingDone = true;
+                        shootState = 3;
+                    }
+                }
         }
     }
+    
 
     public void autonomousPathUpdate(){
         switch (pathState){
@@ -64,8 +99,16 @@ public class red3 extends OpMode {
                 break;
             case 1:
                 if (!follower.isBusy()){
+                    shootState = 0;
+                    ballsShot = 0;
+                    shootThreeUpdate();
                     pathState = 2;
-                    shootThree();
+                }
+                break;
+            case 2:
+                if (shootingDone){
+                    follower.followPath(park);
+                    pathState = 3;
                 }
                 break;
         }
@@ -78,6 +121,7 @@ public class red3 extends OpMode {
         // These loop the movements of the robot, these must be called continuously in order to work
         follower.update();
         autonomousPathUpdate();
+        shootThreeUpdate();
 
         // Feedback to Driver Hub for debugging
         telemetry.addData("path state", pathState);
@@ -85,6 +129,9 @@ public class red3 extends OpMode {
         telemetry.addData("y", follower.getPose().getY());
         telemetry.addData("heading", follower.getPose().getHeading());
         telemetry.addData("actionTimer", actionTimer.getElapsedTimeSeconds());
+        telemetry.addData("balls shot", ballsShot);
+        telemetry.addData("shooter state", shootState);
+        telemetry.addData("scooper position", scooper.getPosition());
         telemetry.update();
     }
 
