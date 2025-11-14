@@ -38,6 +38,9 @@ public class FinalTeleOp extends LinearOpMode {
     double MAX_POWER = 0.7;           // Limit max spin speed
     boolean buttonPressed = false;
 
+    //ONLY FOR TEST
+    char[] motif = {'P', 'P', 'G'};
+
     ColorSensor colorSensor;
 
     public void shootThreeBalls(){
@@ -69,6 +72,37 @@ public class FinalTeleOp extends LinearOpMode {
         Shooter.setPower(0.0);
     }
 
+    public void ShootColor() {
+        Shooter.setPower(-0.7);
+        // 4 AND 5 ARE PLACEHOLDER VALUES, NEED TO BE CONFIGURATED
+        int[] redLimitsPurple = {4, 5};
+        int[] blueLimitsPurple = {4, 5};
+        int[] greenLimitsPurple = {4, 5};
+
+        int[] redLimitsGreen = {4, 5};
+        int[] blueLimitsGreen = {4, 5};
+        int[] greenLimitsGreen = {4, 5};
+
+        boolean isColorPurple = redLimitsPurple[0]<= colorSensor.red() && colorSensor.red() <= redLimitsPurple[1] &&
+                blueLimitsPurple[0] <= colorSensor.blue() && colorSensor.blue() <= blueLimitsPurple[1] &&
+                greenLimitsPurple[0] <= colorSensor.green() && colorSensor.green() <= greenLimitsPurple[1];
+        boolean isColorGreen = redLimitsGreen[0]<= colorSensor.red() && colorSensor.red() <= redLimitsGreen[1] &&
+                blueLimitsGreen[0] <= colorSensor.blue() && colorSensor.blue() <= blueLimitsGreen[1] &&
+                greenLimitsGreen[0] <= colorSensor.green() && colorSensor.green() <= greenLimitsGreen[1];
+
+        // GOES THROUGH ELEMENTS IN MOTIF ARRAY
+        for (int i=0; i<3; i++) {
+            // GOES THROUGH PLACES IN THE SPINDEXER
+            for (int n=0; n<3; n++) {
+                spindexer.setPosition(n * 0.4);
+                if (motif[i] == 'P' && isColorPurple || motif[i] == 'G' && isColorGreen) {
+                    scooper.setPosition(0.5);
+                    sleep(1000);
+                    break;
+                }
+            }
+        }
+    }
 
     @Override
     public void runOpMode() {
