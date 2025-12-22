@@ -5,7 +5,6 @@ import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
-import com.pedropathing.util.Timer; // keep if you use other Pedro timers; not strictly required here
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
@@ -15,8 +14,8 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
@@ -25,8 +24,8 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 import java.util.List;
 
-@Autonomous(name = "red 6 ball")
-public class red6 extends OpMode {
+@Autonomous(name = "red 9 ball")
+public class red9 extends OpMode {
 
     // Drive / subsystems
     private Follower follower;
@@ -39,20 +38,31 @@ public class red6 extends OpMode {
     private Limelight3A limelight = null;
     private VoltageSensor batteryVoltage = null;
 
+    private int shootCycle = 0; // counts how many 3-ball cycles have been shot
+    private final double CYCLE_VELOCITY_INCREMENT = 150; // tune this experimentally
+
     // Pedro pathing
     private int pathState = 0;
     private final Pose startPose = new Pose(111.9, 134.3, Math.toRadians(270));
     private final Pose scorePose = new Pose(86.13, 83.06, Math.toRadians(180));
 
-    private final Pose pickup1a = new Pose(108.23, 77.69,Math.toRadians(180));
+    private final Pose pickup1a = new Pose(108.23, 76.69,Math.toRadians(180));
 
-    private final Pose pickup1b = new Pose(115, 77.69, Math.toRadians(180));
+    private final Pose pickup1b = new Pose(115, 76.69, Math.toRadians(180));
 
-    private final Pose pickup1c = new Pose(127, 77.69, Math.toRadians(180));
+    private final Pose pickup1c = new Pose(127, 76.69, Math.toRadians(180));
+
+    private final Pose lineup2 = new Pose(95.67,44.65, Math.toRadians(170));
+
+    private final Pose pickup2a = new Pose (105.23,44.65, Math.toRadians(170));
+
+    private final Pose pickup2b = new Pose(112, 44.65, Math.toRadians(170));
+
+    private final Pose pickup2c = new Pose(120,44.65,Math.toRadians(170));
     private final Pose finalPose = new Pose(124, 100, Math.toRadians(225));
-    private Path scorePreload, score1, park;
+    private Path scorePreload, score1, score2,  park;
 
-    private PathChain pick1a, pick1b, pick1c;
+    private PathChain pick1a, pick1b, pick1c, before2, pick2a, pick2b, pick2c;
 
     // Shooting / spindexer
     private final double[] spindexerPositions = {-0.1, 0.4, 0.85};
@@ -155,6 +165,32 @@ public class red6 extends OpMode {
 
         score1 = new Path(new BezierLine(pickup1c, scorePose));
         score1.setLinearHeadingInterpolation(pickup1c.getHeading(), scorePose.getHeading());
+
+        before2 = follower.pathBuilder()
+                .addPath(new BezierLine(scorePose, lineup2))
+                .setLinearHeadingInterpolation(scorePose.getHeading(), lineup2.getHeading())
+                .addParametricCallback(0.9, () -> intake.setPower(-0.6))
+                .addParametricCallback(0.9, () -> door.setPosition(0.0))
+                .build();
+        pick2a = follower.pathBuilder()
+                .addPath(new BezierLine(lineup2, pickup2a))
+                .setLinearHeadingInterpolation(lineup2.getHeading(), pickup2a.getHeading())
+                .addParametricCallback(0.9, () -> spindexer.setPosition(0.5))
+                .build();
+        pick2b = follower.pathBuilder()
+                .addPath(new BezierLine(pickup2a, pickup2b))
+                .setLinearHeadingInterpolation(pickup2a.getHeading(), pickup2b.getHeading())
+                .addParametricCallback(0.9, () -> spindexer.setPosition(1.0))
+                .build();
+        pick2c = follower.pathBuilder()
+                .addPath(new BezierLine(pickup2b, pickup2c))
+                .setLinearHeadingInterpolation(pickup2b.getHeading(), pickup2c.getHeading())
+                .addParametricCallback(0.8, () -> spindexer.setPosition(0.1))
+                .addParametricCallback(0.9, () -> intake.setPower(0.0))
+                .addParametricCallback(0.9, () -> door.setPosition(0.2))
+                .build();
+        score2 = new Path(new BezierLine(pickup2c, scorePose));
+        score2.setLinearHeadingInterpolation(pickup2c.getHeading(), scorePose.getHeading());
 
 
     }
@@ -274,11 +310,65 @@ public class red6 extends OpMode {
                 break;
             case 9:
                 if (shootingDone){
-                    follower.followPath(park);
+                    follower.followPath(before2);
                     pathState = 10;
                 }
                 break;
             case 10:
+                if (!follower.isBusy()){
+                    follower.setMaxPower(0.4);
+                    follower.followPath(pick2a);
+                    pathState = 11;
+                }
+                break;
+            case 11:
+                if (!follower.isBusy()){
+                    opmodeTimer.reset();
+                    pathState = 12;
+                }
+                break;
+            case 12:
+                if (opmodeTimer.seconds() > 0.75){
+                    follower.followPath(pick2b);
+                    pathState = 13;
+                }
+                break;
+            case 13:
+                if (!follower.isBusy()){
+                    opmodeTimer.reset();
+                    pathState = 14;
+                }
+                break;
+            case 14:
+                if (opmodeTimer.seconds() > 0.75){
+                    follower.followPath(pick2c);
+                    pathState = 15;
+                }
+                break;
+            case 15:
+                if (!follower.isBusy()){
+                    follower.setMaxPower(1.0);
+                    follower.followPath(score2);
+                    pathState = 16;
+                }
+                break;
+            case 16:
+                if (!follower.isBusy()){
+                    shootState = 0;
+                    ballsShot = 0;
+                    shootingDone = false;
+                    actionTimer.reset();
+                    pathState = 17;
+
+                }
+                break;
+            case 17:
+                if (shootingDone){
+                    follower.followPath(park);
+                    pathState = 18;
+                }
+                break;
+            case 18:
                 break;
         }
     }
@@ -286,21 +376,21 @@ public class red6 extends OpMode {
     // Helper to pick target velocity based on limelight area (Ta)
     private double getExpectedShooterVelocityForRange() {
         // fallback default
-        double defaultVelocity = 1170;
+        double defaultVelocity = 1200;
         try {
             LLResult llResult = limelight.getLatestResult();
             double ta = llResult.getTa(); // target area
             // adopt simple linear mapping similar to TeleOp example:
             double distance = (-33.74145 * ta) + 194.923;
-            if (distance > 170) return 1170;
-            else return 1170;
+            if (distance > 170) return 1200;
+            else return 1200;
         } catch (Exception e) {
             return defaultVelocity;
         }
     }
 
     // Shooting FSM that uses velocity control and the spindexer/scooper servos
-    public void shootThreeUpdate() {
+    /*public void shootThreeUpdate() {
         switch (shootState) {
             case 0:
                 // start spin-up
@@ -346,6 +436,71 @@ public class red6 extends OpMode {
                         shooter.setVelocity(0);
                         spindexer.setPosition(spindexerPositions[0]);
                         shootingDone = true;
+                        shootState = 3;
+                    }
+                }
+                break;
+
+            case 3:
+                // finished - idle state
+                // nothing else to do; remain here
+                break;
+
+            default:
+                break;
+        }
+    }*/
+    public void shootThreeUpdate() {
+        // increment shooter velocity after every full 3-ball cycle
+        switch (shootState) {
+            case 0:
+                // start spin-up
+                applyShooterPIDFCompensated(); // update for voltage changes just before spinup
+
+                // increase target velocity per cycle
+                double baseVelocity = getExpectedShooterVelocityForRange();
+                double cycleVelocity = baseVelocity + shootCycle * CYCLE_VELOCITY_INCREMENT;
+
+                shooter.setVelocity(cycleVelocity);
+                ballsShot = 0;
+                spindexer.setPosition(spindexerPositions[ballsShot]);
+                actionTimer.reset();
+                shootState = 10;
+                break;
+
+            case 10:
+                // give motor time to ramp
+                if (actionTimer.seconds() > 1.0) {
+                    actionTimer.reset();
+                    shootState = 1;
+                }
+                break;
+
+            case 1:
+                // index then scoop
+                if (actionTimer.seconds() > 0.75) {
+                    scooper.setPosition(0.5); // push ball into flywheel
+                    actionTimer.reset();
+                    shootState = 2;
+                }
+                break;
+
+            case 2:
+                // retract scooper and advance spindexer
+                if (actionTimer.seconds() > 0.5) {
+                    scooper.setPosition(0.0);
+                    ballsShot++;
+
+                    if (ballsShot < spindexerPositions.length) {
+                        spindexer.setPosition(spindexerPositions[ballsShot]);
+                        actionTimer.reset();
+                        shootState = 1; // index next ball
+                    } else {
+                        // finished shooting sequence
+                        shooter.setVelocity(0);
+                        spindexer.setPosition(spindexerPositions[0]);
+                        shootingDone = true;
+                        shootCycle++; // increment for next 3-ball cycle
                         shootState = 3;
                     }
                 }

@@ -7,20 +7,20 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import java.util.List;
 
-@TeleOp(name="FINAL RED TELE_OP", group="Iterative OpMode")
-public class redfinal extends OpMode {
+@TeleOp(name="FINAL BLUE TELE_OP", group="Iterative OpMode")
+public class bluefinal extends OpMode {
 
     // Hardware
     private DcMotor frontLeftDrive, backLeftDrive, frontRightDrive, backRightDrive;
@@ -89,7 +89,7 @@ public class redfinal extends OpMode {
         ballSensor.setMode(DigitalChannel.Mode.INPUT);
 
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
-        limelight.pipelineSwitch(1);
+        limelight.pipelineSwitch(2);
         limelight.start();
 
         batteryVoltage = hardwareMap.voltageSensor.iterator().next();
@@ -152,10 +152,6 @@ public class redfinal extends OpMode {
         if (gamepad2.right_bumper) {
             intake.setPower(-0.5);
             door.setPosition(-0.5);
-        }
-        else if (gamepad2.a){
-            intake.setPower(0.5);
-            door.setPosition(-0.5);
         } else {
             intake.setPower(0);
             door.setPosition(0.2);
@@ -208,9 +204,9 @@ public class redfinal extends OpMode {
         LLResult llResult = limelight.getLatestResult();
         distance = getDistanceFromTag(llResult.getTa());
         if (distance > 170){
-            targetVelocity = 2000;
+            targetVelocity = 1900;
         } else {
-            targetVelocity = 1400; // default if no target
+            targetVelocity = 1200; // default if no target
         }
 
         if (gamepad2.x && shooterState == ShooterState.IDLE) {
@@ -229,7 +225,7 @@ public class redfinal extends OpMode {
                 break;
 
             case INDEX_BALL:
-                spindexer.setPosition(ballCount == 0 ? -0.1 :
+                spindexer.setPosition(ballCount == 0 ? 0.0 :
                         ballCount == 1 ? 0.4 : 0.85);
                 if (shooterTimer.seconds() > 1.0) {
                     shooterState = ShooterState.SCOOP;
@@ -239,7 +235,7 @@ public class redfinal extends OpMode {
 
             case SCOOP:
                 scooper.setPosition(0.5);
-                if (shooterTimer.seconds() > 0.5) {
+                if (shooterTimer.seconds() > 1.0) {
                     shooterState = ShooterState.RESET;
                     shooterTimer.reset();
                 }
