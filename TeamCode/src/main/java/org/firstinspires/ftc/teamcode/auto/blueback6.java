@@ -3,8 +3,7 @@ package org.firstinspires.ftc.teamcode.auto;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
-import com.pedropathing.paths.Path;
-import com.pedropathing.util.Timer; // keep if you use other Pedro timers; not strictly required here
+import com.pedropathing.paths.PathChain;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
@@ -15,8 +14,8 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
@@ -25,8 +24,8 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 import java.util.List;
 @Disabled
-@Autonomous(name = "red 3 ball")
-public class red3 extends OpMode {
+@Autonomous(name = "BLUE BACK - 6 RANDOM")
+public class blueback6 extends OpMode {
 
     // Drive / subsystems
     private Follower follower;
@@ -41,10 +40,14 @@ public class red3 extends OpMode {
 
     // Pedro pathing
     private int pathState = 0;
-    private final Pose startPose = new Pose(111.9, 134.3, Math.toRadians(270));
-    private final Pose scorePose = new Pose(86.13, 85.06, Math.toRadians(225));
-    private final Pose finalPose = new Pose(124, 100, Math.toRadians(225));
-    private Path scorePreload, park;
+    private final Pose startPose = new Pose(0, 0, Math.toRadians(270));
+    private final Pose pickup1 = new Pose(-12, 27, Math.toRadians(0));
+    private final Pose pickup1a = new Pose(-20, 27, Math.toRadians(0));
+
+    private final Pose pickup1b = new Pose(-25,27,Math.toRadians(0));
+    private final Pose pickup1c = new Pose(-35, 27, Math.toRadians(0));
+    private final Pose park = new Pose(-34, 68, Math.toRadians(0));
+    private PathChain goto1, pick1a, pick1b, pick1c, shoot2, last ;
 
     // Shooting / spindexer
     private final double[] spindexerPositions = {-0.1, 0.4, 0.85};
@@ -53,11 +56,11 @@ public class red3 extends OpMode {
     private boolean shootingDone = false;
 
     // shooter PIDF constants (copied from teleop)
-    private static final double NOMINAL_VOLTAGE = 12.0;
-    private static final double kP = 0.0006;
+    private static final double NOMINAL_VOLTAGE = 11.38;
+    private static final double kP = 0.0;
     private static final double kI = 0.0;
     private static final double kD = 0.0;
-    private static final double kF = 25.0; // base feedforward constant
+    private static final double kF = 22.5; // base feedforward constant
 
     // turret / limelight tuning
     private final double LIMELIGHT_OFFSET = -1.0;
@@ -94,7 +97,7 @@ public class red3 extends OpMode {
         applyShooterPIDFCompensated();
 
         // limelight
-        limelight.pipelineSwitch(1);
+        limelight.pipelineSwitch(2);
         limelight.start();
 
         // path follower
@@ -118,12 +121,39 @@ public class red3 extends OpMode {
     }
 
     private void buildPaths() {
-        scorePreload = new Path(new BezierLine(startPose, scorePose));
-        scorePreload.setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading());
-
-        park = new Path(new BezierLine(scorePose, finalPose));
-        // keep heading constant for the park path
-        park.setConstantHeadingInterpolation(scorePose.getHeading());
+        goto1 = follower.pathBuilder()
+                .addPath(new BezierLine(startPose, pickup1))
+                .setLinearHeadingInterpolation(startPose.getHeading(), pickup1.getHeading())
+                .addParametricCallback(0.01, () -> limelight.stop())
+                .addParametricCallback(0.2, () -> intake.setPower(-0.6))
+                .addParametricCallback(0.2, () -> door.setPosition(0.0))
+                .build();
+        pick1a = follower.pathBuilder()
+                .addPath(new BezierLine(pickup1, pickup1a))
+                .setLinearHeadingInterpolation(pickup1.getHeading(), pickup1a.getHeading())
+                .addParametricCallback(0.9, () -> spindexer.setPosition(0.5))
+                .build();
+        pick1b = follower.pathBuilder()
+                .addPath(new BezierLine(pickup1a, pickup1b))
+                .setLinearHeadingInterpolation(pickup1a.getHeading(), pickup1b.getHeading())
+                .addParametricCallback(0.9, () -> spindexer.setPosition(1.0))
+                .build();
+        pick1c = follower.pathBuilder()
+                .addPath(new BezierLine(pickup1b, pickup1c))
+                .setLinearHeadingInterpolation(pickup1b.getHeading(), pickup1c.getHeading())
+                .addParametricCallback(0.8, () -> spindexer.setPosition(0.1))
+                .addParametricCallback(0.8, () -> door.setPosition(0.2))
+                .addParametricCallback(0.8, () -> intake.setPower(0.0))
+                .build();
+        shoot2 = follower.pathBuilder()
+                .addPath(new BezierLine(pickup1c, startPose))
+                .setLinearHeadingInterpolation(pickup1c.getHeading(), startPose.getHeading())
+                .addParametricCallback(0.7, () -> limelight.start())
+                .build();
+        last = follower.pathBuilder()
+                .addPath(new BezierLine(startPose, park))
+                .setLinearHeadingInterpolation(startPose.getHeading(), park.getHeading())
+                .build();
     }
 
     @Override
@@ -173,32 +203,74 @@ public class red3 extends OpMode {
         switch (pathState) {
             case 0:
                 // start following preload score path
-                follower.followPath(scorePreload);
+                shootState = 0;
+                ballsShot = 0;
+                shootingDone = false;
+                actionTimer.reset();
                 pathState = 1;
                 break;
 
             case 1:
-                // when path follower finishes, start shooting sequence
-                if (!follower.isBusy()) {
-                    // reset shooter FSM to start shooting
+                if (shootingDone){
+                    follower.followPath(goto1);
+                    follower.setMaxPower(0.4);
+                    pathState = 2;
+                }
+                break;
+            case 2:
+                if (!follower.isBusy()){
+                    follower.followPath(pick1a);
+                    follower.setMaxPower(0.4);
+                    pathState = 3;
+                }
+                break;
+            case 3:
+                if (!follower.isBusy()){
+                    opmodeTimer.reset();
+                    pathState = 4;
+                }
+                break;
+            case 4:
+                if (opmodeTimer.seconds() > 0.5){
+                    follower.followPath(pick1b);
+                    pathState = 5;
+                }
+                break;
+            case 5:
+                if (!follower.isBusy()){
+                    opmodeTimer.reset();
+                    pathState = 6;
+                }
+                break;
+            case 6:
+                if (opmodeTimer.seconds() > 0.5){
+                    follower.followPath(pick1c);
+                    pathState = 7;
+                }
+                break;
+            case 7:
+                if (!follower.isBusy()){
+                    follower.setMaxPower(1.0);
+                    follower.followPath(shoot2);
+                    pathState = 8;
+                }
+                break;
+            case 8:
+                if (!follower.isBusy()){
                     shootState = 0;
                     ballsShot = 0;
                     shootingDone = false;
                     actionTimer.reset();
-                    pathState = 2;
+                    pathState = 9;
                 }
                 break;
-
-            case 2:
-                // wait until shootingDone then park
-                if (shootingDone) {
-                    follower.followPath(park);
-                    pathState = 3;
+            case 9:
+                if (shootingDone){
+                    follower.followPath(last);
+                    pathState = 10;
                 }
                 break;
-
-            case 3:
-                // parked / do nothing — keep follower.update running
+            case 10:
                 break;
         }
     }
@@ -206,14 +278,14 @@ public class red3 extends OpMode {
     // Helper to pick target velocity based on limelight area (Ta)
     private double getExpectedShooterVelocityForRange() {
         // fallback default
-        double defaultVelocity = 1200;
+        double defaultVelocity = 1325;
         try {
             LLResult llResult = limelight.getLatestResult();
             double ta = llResult.getTa(); // target area
             // adopt simple linear mapping similar to TeleOp example:
             double distance = (-33.74145 * ta) + 194.923;
-            if (distance > 170) return 1900.0;
-            else return 1200;
+            if (distance > 170) return 1325;
+            else return 1325;
         } catch (Exception e) {
             return defaultVelocity;
         }
@@ -234,7 +306,7 @@ public class red3 extends OpMode {
 
             case 10:
                 // give motor time to ramp
-                if (actionTimer.seconds() > 1.0) {
+                if (actionTimer.seconds() > 2.0) {
                     actionTimer.reset();
                     shootState = 1;
                 }
@@ -253,7 +325,7 @@ public class red3 extends OpMode {
 
             case 2:
                 // retract scooper and advance spindexer
-                if (actionTimer.seconds() > 0.75) {
+                if (actionTimer.seconds() > 0.5) {
                     scooper.setPosition(0.0);
                     ballsShot++;
 

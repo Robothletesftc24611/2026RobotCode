@@ -5,7 +5,6 @@ import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
-import com.pedropathing.util.Timer; // keep if you use other Pedro timers; not strictly required here
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
@@ -17,8 +16,8 @@ import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
@@ -27,8 +26,8 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 import java.util.List;
 @Disabled
-@Autonomous(name = "RED FRONT SORTED - 6")
-public class red6 extends OpMode {
+@Autonomous(name = "BLUE FRONT SORTED - 6")
+public class blue6 extends OpMode {
 
     // Drive / subsystems
     private Follower follower;
@@ -43,16 +42,16 @@ public class red6 extends OpMode {
 
     // Pedro pathing
     private int pathState = 0;
-    private final Pose startPose = new Pose(0, 0, Math.toRadians(270));
+    private final Pose startPose = new Pose(-1, -2, Math.toRadians(270));
 
-    private final Pose readmotif = new Pose (-24, -24, Math.toRadians(315));
-    private final Pose lineup1 = new Pose (-24, -53, Math.toRadians(180));
-    private final Pose pick1a = new Pose (-6, -53, Math.toRadians(180));
-    private final Pose pick1b = new Pose(0, -53, Math.toRadians(180));
-    private final Pose pick1c = new Pose(6, -53, Math.toRadians(180));
-    private final Pose last = new Pose(4, -55, Math.toRadians(180));
+    private final Pose readmotif = new Pose (24, -24, Math.toRadians(225));
+    private final Pose lineup1 = new Pose (24, -58, Math.toRadians(0));
+    private final Pose pick1a = new Pose (14, -58, Math.toRadians(0));
+    private final Pose pick1b = new Pose(6, -58, Math.toRadians(0));
+    private final Pose pick1c = new Pose(-6, -58, Math.toRadians(0));
+    private final Pose last = new Pose(-4, -60, Math.toRadians(0));
 
-    private final Pose shootpose = new Pose(-30, -55, Math.toRadians(225));
+    private final Pose shootpose = new Pose(30, -53, Math.toRadians(305));
     private Path read;
 
     private PathChain shoot1, line1, pickup1a, pickup1b, pickup1c, shoot2, park;
@@ -468,7 +467,7 @@ public class red6 extends OpMode {
                 telemetry.addData("Pattern",
                         motifPattern[0] + " " + motifPattern[1] + " " + motifPattern[2]);
                 telemetry.update();
-                limelight.pipelineSwitch(1);
+                limelight.pipelineSwitch(2);
 
                 // Continue with the rest of autonomous
                 pathState = 4;

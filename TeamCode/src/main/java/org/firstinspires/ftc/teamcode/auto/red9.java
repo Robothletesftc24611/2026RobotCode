@@ -9,6 +9,7 @@ import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -23,8 +24,8 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 import java.util.List;
-
-@Autonomous(name = "red 9 ball")
+@Disabled
+@Autonomous(name = "RED FRONT - 9 RANDOM ")
 public class red9 extends OpMode {
 
     // Drive / subsystems
@@ -39,14 +40,14 @@ public class red9 extends OpMode {
     private VoltageSensor batteryVoltage = null;
 
     private int shootCycle = 0; // counts how many 3-ball cycles have been shot
-    private final double CYCLE_VELOCITY_INCREMENT = 150; // tune this experimentally
+    private final double CYCLE_VELOCITY_INCREMENT = 0; // tune this experimentally
 
     // Pedro pathing
     private int pathState = 0;
     private final Pose startPose = new Pose(111.9, 134.3, Math.toRadians(270));
     private final Pose scorePose = new Pose(86.13, 83.06, Math.toRadians(180));
 
-    private final Pose pickup1a = new Pose(108.23, 76.69,Math.toRadians(180));
+    private final Pose pickup1a = new Pose(107.23, 76.69,Math.toRadians(180));
 
     private final Pose pickup1b = new Pose(115, 76.69, Math.toRadians(180));
 
@@ -71,11 +72,11 @@ public class red9 extends OpMode {
     private boolean shootingDone = false;
 
     // shooter PIDF constants (copied from teleop)
-    private static final double NOMINAL_VOLTAGE = 12.0;
-    private static final double kP = 0.0006;
+    private static final double NOMINAL_VOLTAGE = 11.38;
+    private static final double kP = 0.0;
     private static final double kI = 0.0;
     private static final double kD = 0.0;
-    private static final double kF = 25.0; // base feedforward constant
+    private static final double kF = 22.0; // base feedforward constant
 
     // turret / limelight tuning
     private final double LIMELIGHT_OFFSET = -1.0;
@@ -376,14 +377,14 @@ public class red9 extends OpMode {
     // Helper to pick target velocity based on limelight area (Ta)
     private double getExpectedShooterVelocityForRange() {
         // fallback default
-        double defaultVelocity = 1200;
+        double defaultVelocity = 1100;
         try {
             LLResult llResult = limelight.getLatestResult();
             double ta = llResult.getTa(); // target area
             // adopt simple linear mapping similar to TeleOp example:
             double distance = (-33.74145 * ta) + 194.923;
-            if (distance > 170) return 1200;
-            else return 1200;
+            if (distance > 170) return 1100;
+            else return 1100;
         } catch (Exception e) {
             return defaultVelocity;
         }
