@@ -19,25 +19,26 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 public class Constants {
     public static FollowerConstants followerConstants = new FollowerConstants()
-            .mass(16.8)
-            .forwardZeroPowerAcceleration(-29.22)
-            .lateralZeroPowerAcceleration(-54.29)
-            .translationalPIDFCoefficients(new PIDFCoefficients(0.1, 0.0, 0.01, 0.02))
-            .headingPIDFCoefficients(new PIDFCoefficients(1, 0.0, 0.02, 0.02))
-            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.01,0.0, 0.00001, 0.6, 0.02));
+            .mass(11.7)
+            .forwardZeroPowerAcceleration(-26.22)
+            .lateralZeroPowerAcceleration(-60.33)
+            .translationalPIDFCoefficients(new PIDFCoefficients(0.1, 0, 0.01, 0.03))
+            .headingPIDFCoefficients(new PIDFCoefficients(1, 0, 0.02, 0.02))
+            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.02, 0, 0.00002, 0.6, 0.02))
+            .centripetalScaling(0.005);
 
     public static MecanumConstants driveConstants = new MecanumConstants()
             .maxPower(1)
-            .rightFrontMotorName("frontRightDrive")
-            .rightRearMotorName("backRightDrive")
-            .leftFrontMotorName("frontLeftDrive")
-            .leftRearMotorName("backLeftDrive")
+            .rightFrontMotorName("rf")
+            .rightRearMotorName("rb")
+            .leftRearMotorName("lb")
+            .leftFrontMotorName("lf")
             .leftFrontMotorDirection(DcMotorSimple.Direction.REVERSE)
             .leftRearMotorDirection(DcMotorSimple.Direction.REVERSE)
             .rightFrontMotorDirection(DcMotorSimple.Direction.FORWARD)
             .rightRearMotorDirection(DcMotorSimple.Direction.FORWARD)
-            .xVelocity(84.71)
-            .yVelocity(68.47);
+            .xVelocity(82.624)
+            .yVelocity(68.42);
 
     public static PinpointConstants localizerConstants = new PinpointConstants()
             .forwardPodY(1)
@@ -54,8 +55,8 @@ public class Constants {
     public static Follower createFollower(HardwareMap hardwareMap) {
         return new FollowerBuilder(followerConstants, hardwareMap)
                 .pathConstraints(pathConstraints)
-                .pinpointLocalizer(localizerConstants)
                 .mecanumDrivetrain(driveConstants)
+                .pinpointLocalizer(localizerConstants)
                 .build();
     }
 }

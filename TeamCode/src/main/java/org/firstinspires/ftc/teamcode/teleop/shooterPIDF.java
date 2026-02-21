@@ -14,7 +14,7 @@ public class shooterPIDF extends OpMode {
     public DcMotorEx shooter1;
     public DcMotorEx shooter2;
 
-    public double highVelocity = 1225;
+    public double highVelocity = 1700; //13.72 --> 12,18
 
     public double lowVelocity = 0;
 
@@ -31,11 +31,11 @@ public class shooterPIDF extends OpMode {
     public void init(){
         shooter1 = hardwareMap.get(DcMotorEx.class, "shooter1");
         shooter1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        shooter1.setDirection(DcMotorSimple.Direction.FORWARD);
+        shooter1.setDirection(DcMotorSimple.Direction.REVERSE);
 
         shooter2 = hardwareMap.get(DcMotorEx.class, "shooter2");
         shooter2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        shooter2.setDirection(DcMotorSimple.Direction.REVERSE);
+        shooter2.setDirection(DcMotorSimple.Direction.FORWARD);
 
         PIDFCoefficients pidfCoefficients = new PIDFCoefficients(P, 0,0, F);
         shooter1.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, pidfCoefficients);

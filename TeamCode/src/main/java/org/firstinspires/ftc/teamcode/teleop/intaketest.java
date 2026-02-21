@@ -19,7 +19,7 @@ public class intaketest extends OpMode {
         if (gamepad1.a){
             intake.setPower(-0.5);
         } else if(gamepad1.b){
-            intake.setPower(-0.7);
+            intake.setPower(-1.0);
         } else{
             intake.setPower(0.0);
         }

@@ -5,27 +5,27 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 @Disabled
-@TeleOp(name = "spindexer test", group = "Iterative OpMode")
+@TeleOp(name = "gate test", group = "Iterative OpMode")
 public class newspindexer extends OpMode {
-    private Servo servo;
+    private Servo gate;
 
     @Override
     public void init(){
-        servo = hardwareMap.get(Servo.class, "spindexer");
+        gate = hardwareMap.get(Servo.class, "gate");
     }
 
     @Override
     public void loop(){
         if (gamepad1.a){
-            servo.setPosition(0.25);
+            gate.setPosition(0.0);
         } else if (gamepad1.b){
-            servo.setPosition(0.45);
+            gate.setPosition(0.6);
         } else if (gamepad1.y){
-            servo.setPosition(0.67);
+            gate.setPosition(0.85);
         } else if (gamepad1.x){
-            servo.setPosition(0.0);
+            gate.setPosition(0.0);
         }
-        telemetry.addData("servo position", servo.getPosition());
+        telemetry.addData("servo position", gate.getPosition());
     }
 
 }
